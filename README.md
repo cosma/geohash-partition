@@ -383,10 +383,10 @@ geohash-partition build -i data.csv -o out/ --min-area-weight 3000 --max-area-we
 | Option | Default | What it does |
 |---|---|---|
 | `-i`, `--input FILE` | required | Two-column CSV: geohash, then weight. Header optional. |
-| `-o`, `--output-dir DIR` | `.` | Directory for the output files. |
-| `--name NAME` | `areas` | Base file name for the outputs. |
 | `--min-area-weight N` | required | Reject areas lighter than this. |
 | `--max-area-weight N` | required | Stop growing an area at this weight. |
+| `-o`, `--output-dir DIR` | `.` | Directory for the output files. |
+| `--name NAME` | `areas` | Base file name for the outputs. |
 | `--max-grids-per-area N` | `100` | Cap on grids per area. |
 | `--precision N` | `6` | Geohash length to work at. |
 | `--greediness N` | `2` | Orphan-absorption passes. |
@@ -428,12 +428,36 @@ uv sync --extra dev
 uv run pytest
 ```
 
+Before opening a pull request, run the same quality checks as CI:
+
+```bash
+uv run --only-group quality ruff check .
+uv run --only-group quality ruff format --check .
+uv run --group quality mypy
+```
+
 Regenerate the geohash diagram in `docs/images/` after changing the geohash
 code:
 
 ```bash
 uv run python docs/make_geohash_figure.py
 ```
+
+## Contributing and support
+
+Feedback and contributions of any size are welcome: bug reports, ideas,
+questions, documentation fixes and new features alike.
+
+- **Found a bug or have an idea?** Open an
+  [issue](https://github.com/cosma/geohash-partition/issues) and describe what
+  you expected and what happened.
+- **Want to contribute code?** Fork the repository, make your change with
+  tests, run the checks from [Development](#development), and open a pull
+  request.
+- **Want to know more?** I'm happy to support anyone who wants to use
+  GeohashPartition or understand how it works, from choosing parameters for
+  your data to applying it in a new domain. Open an issue with your question
+  or reach out to [@cosma](https://github.com/cosma) on GitHub.
 
 ## License
 
