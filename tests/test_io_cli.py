@@ -31,10 +31,10 @@ def test_csv_reads_two_columns_by_position(tmp_path):
     assert list(iter_rows(path)) == [("u4pruy", 3), ("u4pruz", 4.5)]
 
 
-def test_csv_old_project_orders_header_needs_no_mapping(tmp_path):
-    path = tmp_path / "orders.csv"
-    write_csv(path, [("69y7h4", "2356"), ("69y75g", "728")], header=("geohash", "orders"))
-    assert list(iter_rows(path)) == [("69y7h4", 2356), ("69y75g", 728)]
+def test_csv_header_names_are_free(tmp_path):
+    path = tmp_path / "visits.csv"
+    write_csv(path, [("u33db2", "240"), ("u33db3", "75")], header=("geohash", "visits"))
+    assert list(iter_rows(path)) == [("u33db2", 240), ("u33db3", 75)]
 
 
 def test_csv_header_is_optional(tmp_path):
@@ -45,7 +45,7 @@ def test_csv_header_is_optional(tmp_path):
 
 def test_csv_rejects_other_column_counts(tmp_path):
     wide = tmp_path / "wide.csv"
-    wide.write_text("geohash,orders,restaurants\nu4pruy,3,1\n")
+    wide.write_text("geohash,weight,note\nu4pruy,3,1\n")
     with pytest.raises(InputError, match="line 1: expected 2 columns"):
         list(iter_rows(wide))
     narrow = tmp_path / "narrow.csv"

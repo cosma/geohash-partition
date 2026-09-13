@@ -51,8 +51,9 @@ class PartitionConfig:
         geohash have their weights summed.
     greediness
         Number of orphan-absorption passes run after seeding. In each pass every
-        free grid touching two or more areas is handed to the lightest of them.
-        ``0`` disables the pass.
+        free grid that areas touch on two or more of its sides is handed to the
+        lightest of them. Sides are counted, so a grid in a corner or bay of a
+        single area qualifies too. ``0`` disables the pass.
 
     Extra knobs
     -----------
@@ -66,7 +67,7 @@ class PartitionConfig:
         neighbours: grids carrying weight go to the lightest neighbour, empty
         cells to the neighbour they share most edges with. Cells with no input
         row join as zero-weight grids flagged ``empty``. Grids outside the
-        areas, including notches open to the outside, stay leftover.
+        areas that the orphan pass did not attach stay leftover.
     seed_order
         ``"heaviest"`` (default), ``"lightest"`` or ``"random"``: the order in
         which grids are tried as seeds.
@@ -362,11 +363,15 @@ class Partitioner:
         emit(f"2/3 Absorbing orphan grids ({config.greediness} passes)")
         absorbed = 0
         for _ in range(config.greediness):
+            # Every grid of an area lists each free neighbour once per touching
+            # side, so the same area can appear several times for one grid
+            # (a corner counts 2, a bay counts 3).
             touching: Dict[str, List[Area]] = {}
             for area in areas:
-                for grid_id in area.boundary_ids():
-                    if grid_id in pool:
-                        touching.setdefault(grid_id, []).append(area)
+                for member in area.grids:
+                    for grid_id in member.neighbors:
+                        if grid_id in pool:
+                            touching.setdefault(grid_id, []).append(area)
             orphans = [grid_id for grid_id, owners in touching.items() if len(owners) >= 2]
             if not orphans:
                 break

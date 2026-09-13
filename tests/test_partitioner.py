@@ -233,14 +233,33 @@ def test_fill_gaps_finds_hole_touching_the_outside_at_a_corner():
     assert grid[1][1] in area and is_connected(area)
 
 
-def test_orphan_pass_keeps_the_original_rule_of_two_areas():
-    # a free grid touching only one area stays leftover, however many passes run
+def test_orphan_pass_counts_touching_sides():
+    quiet = lambda _: None  # noqa: E731
+
+    # one side of one area: stays leftover however many passes run
     row = block(1, 3)[0]
     area = make_area([row[0]], 100)
     pool = {cell: Grid(cell, 5) for cell in row[1:]}
     partitioner = Partitioner(min_area_weight=1, max_area_weight=1000, greediness=5)
-    assert partitioner._absorb_orphans([area], pool, owners(area), lambda _: None) == 0
+    assert partitioner._absorb_orphans([area], pool, owners(area), quiet) == 0
     assert area.grid_count == 1 and len(pool) == 2
+
+    single_pass = Partitioner(min_area_weight=1, max_area_weight=1000, greediness=1)
+
+    # corner of one area: the same area touches it on two sides, so it is attached
+    g = block(2, 2)
+    corner_area = make_area([g[0][0], g[0][1], g[1][0]], 10)
+    corner = g[1][1]
+    pool = {corner: Grid(corner, 5)}
+    assert single_pass._absorb_orphans([corner_area], pool, owners(corner_area), quiet) == 1
+    assert corner in corner_area and is_connected(corner_area)
+
+    # bay in one area: touched on three sides, attached as well
+    grid, bay_area = ring_area(3, skip={(1, 2)})
+    middle = grid[1][1]
+    pool = {middle: Grid(middle, 5)}
+    assert single_pass._absorb_orphans([bay_area], pool, owners(bay_area), quiet) == 1
+    assert middle in bay_area and is_connected(bay_area)
 
 
 def test_orphans_go_to_lightest_neighbouring_area():

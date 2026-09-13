@@ -2,6 +2,12 @@
 
 **Constraint-based geographic partitioning with geohash grids.**
 
+![Interactive areas map for the Berlin sample at precision 6: 62 areas shaded by weight, with the outcome and parameters panel](docs/images/areas-map-precision-6.jpg)
+
+*The `areas-map.html` generated for the bundled Berlin sample: 62 areas shaded
+from light to dark by weight, with the run's outcome and parameters in the side
+panel.*
+
 GeohashPartition assembles geohash grids into connected, weight-balanced areas.
 Give it a two-column CSV of geohash and weight, a pandas DataFrame, or a list
 of dicts. Tell it how heavy and how big an area may be, and it tiles your
@@ -315,9 +321,11 @@ geohash-partition view -i edited.geojson -o edited-map.html --title "Edited area
 3. **Accept or reject.** An area lighter than `min_area_weight` is dropped and
    its grids go back to the pool. After `max_failures` consecutive rejections,
    or once `max_areas` is reached, seeding stops.
-4. **Absorb orphans.** For `greediness` passes, every free grid touching two or
-   more areas is handed to the lightest of them. This evens out weights and
-   removes slivers between areas.
+4. **Absorb orphans.** For `greediness` passes, every free grid that areas
+   touch on two or more of its sides is handed to the lightest of those areas.
+   Sides are counted, not areas, so a grid squeezed between two areas qualifies,
+   and so does a grid in a corner or bay of a single area. This evens out
+   weights and removes slivers and notches along area edges.
 5. **Fill gaps.** The outline of all areas together is built from their grid
    boxes. Every hole in it is a gap, including holes that touch the outside
    only at a corner, and ray casting finds the geohashes inside each hole. A
@@ -327,8 +335,8 @@ geohash-partition view -i edited.geojson -o edited-map.html --title "Edited area
    go to the neighbour they share most edges with. No area is left with holes.
 6. **Report.** Areas with polygons, leftover grids, and run statistics.
 
-Grids outside the areas stay in `result.leftover`, including notches along the
-outer edge that open to the outside. Only gaps enclosed by areas are filled.
+Grids that no area took stay in `result.leftover`. Gaps enclosed by areas are
+always filled; grids outside the areas are only attached by the orphan pass.
 
 Areas are always 4-connected. Two details worth knowing: the last grid added
 during growth may push an area slightly above `max_area_weight`, because the
@@ -367,6 +375,43 @@ Tuning tips:
 - `max_grids_per_area` keeps sparse regions from producing sprawling areas.
 - Grids that end up in no area are listed in `result.leftover`; they are
   usually low-weight fringe grids that no area could reach within its limits.
+
+### Choosing the precision
+
+The precision sets the size of the building blocks. Both maps below use the
+same Berlin sample and the same limits: `min_area_weight` 2000,
+`max_area_weight` 4000 and `max_grids_per_area` 60. Only the precision changes.
+
+| Precision 6 | Precision 5 |
+|---|---|
+| ![Berlin sample at precision 6: 62 areas with detailed, stepped edges](docs/images/areas-map-precision-6.jpg) | ![Berlin sample at precision 5: 36 blocky areas built from large cells](docs/images/areas-map-precision-5.jpg) |
+
+| Berlin sample | Precision 6 | Precision 5 |
+|---|---|---|
+| Grids | 2,562 | 104 |
+| Areas | 62 | 36 |
+| Median grids per area | 53 | 3 |
+| Areas made of a single grid | 0 | 10 |
+| Lightest to heaviest area | 2,006 to 4,570 | 2,248 to 17,320 |
+| Areas above `max_area_weight` | 34 of 62 | 34 of 36 |
+| Grids left over | 82 | 0 |
+
+- **Finer grids** follow the data closely, so areas stay near the weight
+  limits and their edges trace where the weight actually is.
+- **Coarser grids** are faster to process, but a single busy cell can already
+  outweigh `max_area_weight`. At precision 5, ten cells in central Berlin
+  exceed 4,000 on their own and each becomes an area by itself; the heaviest,
+  `u33d9`, weighs 17,320.
+
+Pick the finest precision whose cells are still light compared with
+`max_area_weight`. Rebuild both maps with:
+
+```bash
+uv run geohash-partition build -i examples/sample.csv -o examples/output/precision-6 \
+  --precision 6 --min-area-weight 2000 --max-area-weight 4000 --max-grids-per-area 60
+uv run geohash-partition build -i examples/sample.csv -o examples/output/precision-5 \
+  --precision 5 --min-area-weight 2000 --max-area-weight 4000 --max-grids-per-area 60
+```
 
 ## Command reference
 
