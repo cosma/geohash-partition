@@ -488,6 +488,22 @@ code:
 uv run python docs/make_geohash_figure.py
 ```
 
+### Releasing
+
+Releases are published to PyPI by `.github/workflows/release.yml` using trusted
+publishing, so no API token is stored anywhere. The version lives only in
+`pyproject.toml`. To release, bump it, commit, and push a matching tag:
+
+```bash
+uv version --bump minor              # or patch / major
+git commit -am "Release $(uv version --short)"
+git tag "v$(uv version --short)"
+git push origin main --tags
+```
+
+The workflow refuses to publish if the tag does not match the version in
+`pyproject.toml`.
+
 ## Contributing and support
 
 Feedback and contributions of any size are welcome: bug reports, ideas,

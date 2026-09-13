@@ -34,11 +34,20 @@ quality = [
   "mypy==2.3.1; python_version >= '3.10'",
 ]
 
+[project.urls]
+Homepage = "https://github.com/cosma/geohash-partition"
+Repository = "https://github.com/cosma/geohash-partition"
+Issues = "https://github.com/cosma/geohash-partition/issues"
+
 [project.scripts]
 geohash-partition = "geohash_partition.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["geohash_partition"]
+
+[tool.hatch.build.targets.sdist]
+# Ship only the package and its tests; README, LICENSE and pyproject.toml are added automatically.
+include = ["/geohash_partition", "/tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

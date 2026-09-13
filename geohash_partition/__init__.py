@@ -8,6 +8,8 @@ Quick start::
     result.save("out/")  # areas.geojson (for geojson.io), areas.json, areas-map.html (Leaflet)
 """
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .area import Area
 from .geohash import GeohashError, bbox, center, encode, neighbors
 from .grid import Grid, haversine
@@ -16,7 +18,11 @@ from .leaflet_map import render_map, save_map
 from .outline import point_in_ring
 from .partitioner import ConfigError, PartitionConfig, Partitioner, PartitionResult, partition
 
-__version__ = "0.1.0"
+# The version lives only in pyproject.toml; read it from the installed package metadata.
+try:
+    __version__ = version("geohash-partition")
+except PackageNotFoundError:  # running from a source tree that was never installed
+    __version__ = "0.0.0"
 
 __all__ = [
     "Area",
