@@ -14,13 +14,49 @@ Typical uses: sales territories, delivery zones, advertising placements, field
 service districts, census-style aggregation, any "split this map into fair
 chunks" problem.
 
-The idea comes from a production system that carved whole countries into
-equally valuable advertising zones for a food-delivery marketplace.
-GeohashPartition is a clean-room Python rewrite of that core idea.
 
 **Zero dependencies.** Distances use the haversine formula, point-in-polygon
 uses ray casting, and area outlines come from cancelling shared grid edges.
 There is no shapely, geopandas, GDAL or numpy anywhere.
+
+## What is a geohash?
+
+A geohash is a short text code for a rectangle on the Earth's surface. The
+world is split into 32 cells, each named by one character. Every cell is split
+into 32 smaller cells, and so on, so each extra character zooms in. Longer
+codes mean smaller cells, and places whose codes share a prefix are close
+together.
+
+The codes use the digits `0` to `9` and the lowercase letters except `a`, `i`,
+`l` and `o`. Gustavo Niemeyer invented the system in 2008 and released it into
+the public domain.
+
+Zooming in on the Brandenburg Gate in Berlin:
+
+| Precision | Geohash | Cell width x height |
+|---|---|---|
+| 2 | `u3` | about 750 km x 620 km |
+| 4 | `u33d` | about 24 km x 19 km |
+| 5 | `u33db` | about 3 km x 4.9 km |
+| 6 | `u33db2` | about 740 m x 610 m |
+| 7 | `u33db2m` | about 90 m x 150 m |
+
+Cells get narrower away from the equator, so the same precision covers less
+ground in Berlin than in Singapore.
+
+In GeohashPartition, each geohash at your chosen `precision` is one grid: the
+building block that areas are assembled from. Longer input geohashes are cut
+to that precision, and their weights are added up.
+
+Learn more:
+
+- [Geohash on Wikipedia](https://en.wikipedia.org/wiki/Geohash) explains the
+  encoding step by step, including the edge cases at the equator, the
+  meridians and the poles.
+- [Movable Type geohash tool](https://www.movable-type.co.uk/scripts/geohash.html)
+  encodes and decodes geohashes interactively.
+- [Elasticsearch geohash grid reference](https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-geohashgrid-aggregation)
+  has a table of cell sizes at the equator for each precision.
 
 ## Install
 
@@ -241,7 +277,7 @@ data and filled cells are always distinguishable.
 | `min_area_weight` | required | Reject areas lighter than this. |
 | `max_area_weight` | required | Stop growing an area once it reaches this weight. |
 | `max_grids_per_area` | `100` | Hard cap on grids per area during growth. |
-| `precision` | `6` | Geohash length to work at. Precision 5 cells are about 4.9 km x 4.9 km, 6 about 1.2 km x 0.6 km, 7 about 150 m x 150 m. |
+| `precision` | `6` | Geohash length to work at. At the equator, precision 5 cells are about 4.9 km x 4.9 km, 6 about 1.2 km x 0.6 km, 7 about 150 m x 150 m. See [What is a geohash?](#what-is-a-geohash). |
 | `greediness` | `2` | Orphan-absorption passes after seeding. `0` disables. |
 | `max_areas` | `None` | Stop after this many areas. |
 | `max_failures` | `100` | Consecutive rejected seeds before seeding stops. |

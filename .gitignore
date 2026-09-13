@@ -7,4 +7,4 @@ build/
 .pytest_cache/
 .DS_Store
 examples/output/
-original_project/
+.DS_Store
