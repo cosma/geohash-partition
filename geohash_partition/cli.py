@@ -26,7 +26,9 @@ def _build_parser() -> argparse.ArgumentParser:
         help="form areas from a two-column CSV of geohash,weight rows",
         description="Form areas and write <name>.geojson, <name>.json and <name>-map.html to the output directory.",
     )
-    build.add_argument("-i", "--input", required=True, help="CSV with two columns: geohash, then weight (header optional)")
+    build.add_argument(
+        "-i", "--input", required=True, help="CSV with two columns: geohash, then weight (header optional)"
+    )
     build.add_argument("-o", "--output-dir", default=".", help="directory for the outputs (default: current)")
     build.add_argument("--name", default="areas", help="base file name for the outputs (default: areas)")
     build.add_argument("--min-area-weight", type=float, required=True, help="reject areas lighter than this")
@@ -44,7 +46,11 @@ def _build_parser() -> argparse.ArgumentParser:
     build.add_argument("--no-json", action="store_true", help="skip <name>.json")
     build.add_argument("--no-map", action="store_true", help="skip <name>-map.html")
     build.add_argument("--title", default=None, help="title shown on the map")
-    build.add_argument("--tiles", default="auto", help="base map: auto (OpenStreetMap; OpenTopoMap when the HTML is opened from disk), osm, opentopomap, or a tile URL template with {z}/{x}/{y}")
+    build.add_argument(
+        "--tiles",
+        default="auto",
+        help="base map: auto (OpenStreetMap; OpenTopoMap when the HTML is opened from disk), osm, opentopomap, or a tile URL template with {z}/{x}/{y}",
+    )
     build.add_argument("--tiles-attribution", default=None, help="attribution HTML, required with a custom tile URL")
     build.add_argument("-q", "--quiet", action="store_true", help="suppress progress messages")
 
@@ -57,7 +63,11 @@ def _build_parser() -> argparse.ArgumentParser:
     view.add_argument("-o", "--output", default=None, help="HTML file to write (default: <input>-map.html)")
     view.add_argument("--title", default=None, help="title shown on the map")
     view.add_argument("--no-leftover", action="store_true", help="do not draw leftover grids")
-    view.add_argument("--tiles", default="auto", help="base map: auto (OpenStreetMap; OpenTopoMap when the HTML is opened from disk), osm, opentopomap, or a tile URL template with {z}/{x}/{y}")
+    view.add_argument(
+        "--tiles",
+        default="auto",
+        help="base map: auto (OpenStreetMap; OpenTopoMap when the HTML is opened from disk), osm, opentopomap, or a tile URL template with {z}/{x}/{y}",
+    )
     view.add_argument("--tiles-attribution", default=None, help="attribution HTML, required with a custom tile URL")
     return parser
 
@@ -106,7 +116,12 @@ def _run_build(args: argparse.Namespace) -> int:
     except ValueError as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
-    labels = {"geojson": "GeoJSON (open in geojson.io)", "json": "Full result", "csv": "Assignments", "map": "Leaflet map"}
+    labels = {
+        "geojson": "GeoJSON (open in geojson.io)",
+        "json": "Full result",
+        "csv": "Assignments",
+        "map": "Leaflet map",
+    }
     for fmt, path in paths.items():
         log(f"{labels[fmt]}: {path}")
     return 0

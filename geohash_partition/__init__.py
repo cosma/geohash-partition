@@ -27,6 +27,7 @@ __all__ = [
     "PartitionConfig",
     "PartitionResult",
     "Partitioner",
+    "__version__",
     "bbox",
     "center",
     "encode",
@@ -36,5 +37,4 @@ __all__ = [
     "point_in_ring",
     "render_map",
     "save_map",
-    "__version__",
 ]

@@ -71,7 +71,7 @@ def test_csv_reports_bad_values_and_empty_files(tmp_path):
 
 def test_dataframe_like_and_mapping_sources():
     class FakeFrame:
-        columns = ["geohash", "weight"]
+        columns = ("geohash", "weight")
 
         def __init__(self, data):
             self._data = data
@@ -159,11 +159,26 @@ def test_cli_build_writes_geojson_json_and_map(tmp_path):
     source = tmp_path / "in.csv"
     write_csv(source, uniform_block(6, 6).items())
     out = tmp_path / "out"
-    code = main([
-        "build", "-i", str(source), "-o", str(out),
-        "--min-area-weight", "30", "--max-area-weight", "60", "--max-grids-per-area", "6",
-        "--csv", "--include-leftover", "--title", "Test run", "-q",
-    ])
+    code = main(
+        [
+            "build",
+            "-i",
+            str(source),
+            "-o",
+            str(out),
+            "--min-area-weight",
+            "30",
+            "--max-area-weight",
+            "60",
+            "--max-grids-per-area",
+            "6",
+            "--csv",
+            "--include-leftover",
+            "--title",
+            "Test run",
+            "-q",
+        ]
+    )
     assert code == 0
     data = json.loads((out / "areas.json").read_text())
     assert data["config"]["min_area_weight"] == 30 and data["stats"]["total_grids"] == 36
@@ -177,8 +192,24 @@ def test_cli_build_writes_geojson_json_and_map(tmp_path):
 def test_cli_build_can_skip_outputs(tmp_path):
     source = tmp_path / "in.csv"
     write_csv(source, uniform_block(4, 4).items())
-    code = main(["build", "-i", str(source), "-o", str(tmp_path), "--name", "dogs",
-                 "--min-area-weight", "30", "--max-area-weight", "60", "--no-json", "--no-map", "-q"])
+    code = main(
+        [
+            "build",
+            "-i",
+            str(source),
+            "-o",
+            str(tmp_path),
+            "--name",
+            "dogs",
+            "--min-area-weight",
+            "30",
+            "--max-area-weight",
+            "60",
+            "--no-json",
+            "--no-map",
+            "-q",
+        ]
+    )
     assert code == 0
     assert (tmp_path / "dogs.geojson").exists()
     assert not (tmp_path / "dogs.json").exists() and not (tmp_path / "dogs-map.html").exists()
@@ -187,8 +218,24 @@ def test_cli_build_can_skip_outputs(tmp_path):
 def test_cli_view_from_json_and_geojson(tmp_path):
     source = tmp_path / "in.csv"
     write_csv(source, uniform_block(6, 6).items())
-    assert main(["build", "-i", str(source), "-o", str(tmp_path), "--no-map", "--min-area-weight", "30",
-                 "--max-area-weight", "60", "-q"]) == 0
+    assert (
+        main(
+            [
+                "build",
+                "-i",
+                str(source),
+                "-o",
+                str(tmp_path),
+                "--no-map",
+                "--min-area-weight",
+                "30",
+                "--max-area-weight",
+                "60",
+                "-q",
+            ]
+        )
+        == 0
+    )
     assert main(["view", "-i", str(tmp_path / "areas.json")]) == 0
     assert (tmp_path / "areas-map.html").stat().st_size > 2000
     assert main(["view", "-i", str(tmp_path / "areas.geojson"), "-o", str(tmp_path / "from-geojson.html")]) == 0
@@ -198,8 +245,9 @@ def test_cli_view_from_json_and_geojson(tmp_path):
 def test_cli_reports_config_errors(tmp_path, capsys):
     source = tmp_path / "in.csv"
     write_csv(source, [("u4pruy", 1)])
-    code = main(["build", "-i", str(source), "-o", str(tmp_path),
-                 "--min-area-weight", "10", "--max-area-weight", "5", "-q"])
+    code = main(
+        ["build", "-i", str(source), "-o", str(tmp_path), "--min-area-weight", "10", "--max-area-weight", "5", "-q"]
+    )
     assert code == 2
     assert "min_area_weight" in capsys.readouterr().err
 
@@ -207,10 +255,43 @@ def test_cli_reports_config_errors(tmp_path, capsys):
 def test_cli_tiles_option(tmp_path, capsys):
     source = tmp_path / "in.csv"
     write_csv(source, uniform_block(4, 4).items())
-    assert main(["build", "-i", str(source), "-o", str(tmp_path), "--min-area-weight", "30", "--max-area-weight", "60",
-                 "--no-json", "--tiles", "opentopomap", "-q"]) == 0
+    assert (
+        main(
+            [
+                "build",
+                "-i",
+                str(source),
+                "-o",
+                str(tmp_path),
+                "--min-area-weight",
+                "30",
+                "--max-area-weight",
+                "60",
+                "--no-json",
+                "--tiles",
+                "opentopomap",
+                "-q",
+            ]
+        )
+        == 0
+    )
     page = (tmp_path / "areas-map.html").read_text()
     assert "opentopomap.org" in page and '"fileFallback":null' in page
-    code = main(["build", "-i", str(source), "-o", str(tmp_path), "--min-area-weight", "30", "--max-area-weight", "60",
-                 "--no-json", "--tiles", "https://t.example.com/{z}/{x}/{y}.png", "-q"])
+    code = main(
+        [
+            "build",
+            "-i",
+            str(source),
+            "-o",
+            str(tmp_path),
+            "--min-area-weight",
+            "30",
+            "--max-area-weight",
+            "60",
+            "--no-json",
+            "--tiles",
+            "https://t.example.com/{z}/{x}/{y}.png",
+            "-q",
+        ]
+    )
     assert code == 2 and "attribution" in capsys.readouterr().err

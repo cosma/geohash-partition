@@ -66,7 +66,7 @@ def _looks_numeric(text: str) -> bool:
     return True
 
 
-def _rows_from_csv(path: Union[str, "os.PathLike[str]"]) -> Iterator[Row]:
+def _rows_from_csv(path: Union[str, os.PathLike[str]]) -> Iterator[Row]:
     """Read a two-column CSV: geohash first, weight second.
 
     Columns are read by position, so header names are free (``geohash,weight``,
@@ -84,8 +84,7 @@ def _rows_from_csv(path: Union[str, "os.PathLike[str]"]) -> Iterator[Row]:
                 continue  # blank line
             if len(cells) != 2:
                 raise InputError(
-                    f"{path}, line {line_number}: expected 2 columns (geohash, weight), "
-                    f"found {len(cells)}: {cells!r}"
+                    f"{path}, line {line_number}: expected 2 columns (geohash, weight), found {len(cells)}: {cells!r}"
                 )
             geohash, weight = cells
             if first_row:
@@ -123,8 +122,8 @@ def _rows_from_dataframe(frame: Any, geohash_column: str, weight_column: str) ->
         )
     geohashes = frame[geohash_column].tolist()
     weights = frame[weight_column].tolist()
-    index = getattr(frame, "index", None)
-    labels = index.tolist() if hasattr(index, "tolist") else range(len(geohashes))
+    index_tolist = getattr(getattr(frame, "index", None), "tolist", None)
+    labels = index_tolist() if callable(index_tolist) else range(len(geohashes))
     for label, geohash, weight in zip(labels, geohashes, weights):
         yield _checked(geohash, weight, f"DataFrame row {label!r}")
 
@@ -190,12 +189,12 @@ def aggregate(rows: Iterable[Row], precision: int) -> Tuple[Dict[str, Number], i
 # -- exporters ---------------------------------------------------------------
 
 
-def write_json(data: Mapping[str, Any], path: Union[str, "os.PathLike[str]"], indent: int = 2) -> None:
+def write_json(data: Mapping[str, Any], path: Union[str, os.PathLike[str]], indent: int = 2) -> None:
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(data, handle, indent=indent, ensure_ascii=False)
 
 
-def write_assignments_csv(rows: Iterable[Tuple[str, str, Number]], path: Union[str, "os.PathLike[str]"]) -> None:
+def write_assignments_csv(rows: Iterable[Tuple[str, str, Number]], path: Union[str, os.PathLike[str]]) -> None:
     """Write ``geohash,area_id,weight`` rows (area_id empty for leftover grids)."""
     with open(path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
@@ -203,7 +202,7 @@ def write_assignments_csv(rows: Iterable[Tuple[str, str, Number]], path: Union[s
         writer.writerows(rows)
 
 
-def read_result_json(path: Union[str, "os.PathLike[str]"]) -> Dict[str, Any]:
+def read_result_json(path: Union[str, os.PathLike[str]]) -> Dict[str, Any]:
     with open(path, encoding="utf-8") as handle:
         return json.load(handle)
 

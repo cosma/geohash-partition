@@ -42,7 +42,7 @@ class Grid:
         self.lon = (min_lon + max_lon) / 2
         self.neighbors = neighbor_ids(self.id)
 
-    def distance_to(self, other: "Grid") -> float:
+    def distance_to(self, other: Grid) -> float:
         """Great-circle distance in metres between the two grid centers."""
         return haversine(self.lat, self.lon, other.lat, other.lon)
 

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from .grid import Grid, Number
 from .outline import geojson_geometry
@@ -16,7 +16,7 @@ class Area:
     distance sums are cached per candidate so growth stays linear per step.
     """
 
-    __slots__ = ("id", "seed", "grids", "weight", "_ids", "_candidates")
+    __slots__ = ("_candidates", "_ids", "grids", "id", "seed", "weight")
 
     def __init__(self, seed: Grid) -> None:
         self.id: str = seed.id
@@ -99,7 +99,7 @@ class Area:
         return geojson_geometry(grid.bbox for grid in self.grids)
 
     def to_dict(self, include_geometry: bool = True) -> dict:
-        data = {
+        data: Dict[str, Any] = {
             "id": self.id,
             "seed": self.seed.id,
             "weight": self.weight,

@@ -11,8 +11,7 @@ from tests.conftest import block, uniform_block
 
 def rings_of(geometry):
     polygons = [geometry["coordinates"]] if geometry["type"] == "Polygon" else geometry["coordinates"]
-    for polygon in polygons:
-        yield polygon
+    yield from polygons
 
 
 def make_result():
@@ -45,7 +44,10 @@ def test_geojson_is_rfc7946_and_simplestyled():
                 assert -180 <= lon <= 180 and -90 <= lat <= 90
     areas = [f for f in collection["features"] if f["properties"]["kind"] == "area"]
     assert len(areas) == result.area_count
-    assert sum(f["properties"]["grid_count"] - f["properties"]["empty_grids"] for f in areas) == result.stats["grouped_grids"]
+    assert (
+        sum(f["properties"]["grid_count"] - f["properties"]["empty_grids"] for f in areas)
+        == result.stats["grouped_grids"]
+    )
     assert sum(f["properties"]["empty_grids"] for f in areas) == result.stats["empty_grids_filled"]
     assert all(len(f["properties"]["grids"].split(",")) == f["properties"]["grid_count"] for f in areas)
 

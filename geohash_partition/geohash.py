@@ -11,7 +11,7 @@ builder relies on.
 
 from __future__ import annotations
 
-from typing import Dict, Iterator, Optional, Tuple
+from typing import Dict, Iterator, List, Optional, Tuple
 
 BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz"
 _DECODE = {char: index for index, char in enumerate(BASE32)}
@@ -74,7 +74,7 @@ def encode(lat: float, lon: float, precision: int) -> str:
         raise GeohashError(f"precision must be between 1 and 12, got {precision}")
     lat_lo, lat_hi = -90.0, 90.0
     lon_lo, lon_hi = -180.0, 180.0
-    chars = []
+    chars: List[str] = []
     value = 0
     bit_index = 0
     even = True

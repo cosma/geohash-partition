@@ -63,8 +63,8 @@ def make_rows(seed: int):
         weight = rng.uniform(*BACKGROUND)
         for _, spot_lat, spot_lon, peak, spread_km in HOT_SPOTS:
             distance_km = haversine(lat, lon, spot_lat, spot_lon) / 1000
-            weight += peak * math.exp(-(distance_km ** 2) / (2 * spread_km ** 2))
-        value = int(round(weight))
+            weight += peak * math.exp(-(distance_km**2) / (2 * spread_km**2))
+        value = round(weight)
         if value == 0 or rng.random() < DROP_RATE:
             continue  # keep some data gaps, like real data
         rows.append((cell, value))

@@ -75,7 +75,9 @@ def ring_area(size: int, skip=()):
 
 
 def test_uniform_block_forms_balanced_areas(block10):
-    partitioner = Partitioner(min_area_weight=50, max_area_weight=100, max_grids_per_area=10, greediness=0, fill_holes=False)
+    partitioner = Partitioner(
+        min_area_weight=50, max_area_weight=100, max_grids_per_area=10, greediness=0, fill_holes=False
+    )
     result = partitioner.partition(block10)
     check_invariants(result, partitioner.config)
     assert result.area_count >= 8
@@ -121,7 +123,7 @@ def test_seed_order_heaviest_first():
 
 
 def test_random_seed_is_reproducible(block10):
-    kwargs = dict(min_area_weight=30, max_area_weight=60, seed_order="random", random_seed=7)
+    kwargs = {"min_area_weight": 30, "max_area_weight": 60, "seed_order": "random", "random_seed": 7}
 
     def run(**overrides):
         data = partition(block10, **dict(kwargs, **overrides)).to_dict(include_geometry=False)
@@ -158,7 +160,9 @@ def test_fill_gaps_ignores_notch_open_to_the_outside():
     grid, area = ring_area(3, skip={(1, 2)})
     center = grid[1][1]
     pool = {center: Grid(center, 1)}
-    assert Partitioner(min_area_weight=1, max_area_weight=1000)._fill_gaps([area], pool, owners(area), lambda _: None) == (0, 0)
+    assert Partitioner(min_area_weight=1, max_area_weight=1000)._fill_gaps(
+        [area], pool, owners(area), lambda _: None
+    ) == (0, 0)
     assert center in pool and area.grid_count == 7
 
 
@@ -182,7 +186,9 @@ def test_gap_between_areas_gives_weight_to_the_lightest_neighbour():
     top, middle, bottom = g[3][2], g[2][2], g[1][2]
     pool = {top: Grid(top, 8), bottom: Grid(bottom, 8)}  # middle has no data
     assigned = owners(heavy, light)
-    filled = Partitioner(min_area_weight=1, max_area_weight=1000)._fill_gaps([heavy, light], pool, assigned, lambda _: None)
+    filled = Partitioner(min_area_weight=1, max_area_weight=1000)._fill_gaps(
+        [heavy, light], pool, assigned, lambda _: None
+    )
     assert filled == (2, 1)
     assert top in light and bottom in light and middle in light
     assert heavy.weight == 110 and light.weight == 55 + 16
@@ -206,7 +212,7 @@ def test_pipeline_leaves_no_gaps_and_switch_turns_it_off():
     g = block(14, 14)
     rng = random.Random(3)
     data = {g[r][c]: rng.randint(5, 30) for r in range(14) for c in range(14) if rng.random() >= 0.12}
-    kwargs = dict(min_area_weight=150, max_area_weight=300, max_grids_per_area=20)
+    kwargs = {"min_area_weight": 150, "max_area_weight": 300, "max_grids_per_area": 20}
     filled = Partitioner(**kwargs)
     result = filled.partition(data)
     check_invariants(result, filled.config)

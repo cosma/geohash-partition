@@ -71,6 +71,7 @@ def resolve_tiles(tiles: str = "auto", attribution: Optional[str] = None) -> Dic
         f"unknown tiles {tiles!r}; use 'auto', one of {sorted(TILE_PRESETS)}, or a URL template with {{z}}, {{x}} and {{y}}"
     )
 
+
 MapSource = Union[Mapping[str, Any], Any]
 
 CONFIG_LABELS: Sequence[Tuple[str, str]] = (
@@ -110,8 +111,9 @@ def load(path: str) -> Dict[str, Any]:
 def _split(source: MapSource, include_leftover: bool) -> Tuple[Dict[str, Any], Dict[str, Any], List[dict], List[dict]]:
     """Return ``(config, stats, area_features, leftover_features)`` for any supported source."""
     if hasattr(source, "to_geojson") and hasattr(source, "config"):
-        collection = source.to_geojson(include_leftover=include_leftover)
-        config, stats = source.config.to_dict(), dict(source.stats)
+        result: Any = source
+        collection = result.to_geojson(include_leftover=include_leftover)
+        config, stats = result.config.to_dict(), dict(result.stats)
     elif isinstance(source, Mapping) and source.get("type") == "FeatureCollection":
         collection, config, stats = source, {}, {}
     elif isinstance(source, Mapping) and "areas" in source:
@@ -230,7 +232,9 @@ def save_map(
     tiles_attribution: Optional[str] = None,
 ) -> str:
     """Write the map to ``path`` and return the path."""
-    page = render_map(source, title=title, include_leftover=include_leftover, tiles=tiles, tiles_attribution=tiles_attribution)
+    page = render_map(
+        source, title=title, include_leftover=include_leftover, tiles=tiles, tiles_attribution=tiles_attribution
+    )
     directory = os.path.dirname(os.path.abspath(path))
     os.makedirs(directory, exist_ok=True)
     with open(path, "w", encoding="utf-8") as handle:

@@ -154,7 +154,13 @@ class PartitionResult:
         low, high = weight_range(area.weight for area in self.areas)
         features = [
             area_feature(
-                area.id, area.seed.id, area.weight, [grid.id for grid in area.grids], area.geometry(), low, high,
+                area.id,
+                area.seed.id,
+                area.weight,
+                [grid.id for grid in area.grids],
+                area.geometry(),
+                low,
+                high,
                 area.empty_grid_count,
             )
             for area in self.areas
@@ -226,7 +232,10 @@ class PartitionResult:
             paths["csv"] = self.save_csv(os.path.join(directory, f"{name}-assignments.csv"))
         if "map" in chosen:
             paths["map"] = self.save_map(
-                os.path.join(directory, f"{name}-map.html"), title=title, tiles=tiles, tiles_attribution=tiles_attribution
+                os.path.join(directory, f"{name}-map.html"),
+                title=title,
+                tiles=tiles,
+                tiles_attribution=tiles_attribution,
             )
         return paths
 
