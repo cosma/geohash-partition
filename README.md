@@ -48,6 +48,77 @@ In GeohashPartition, each geohash at your chosen `precision` is one grid: the
 building block that areas are assembled from. Longer input geohashes are cut
 to that precision, and their weights are added up.
 
+### From coordinates to a geohash grid
+
+![A precision-5 geohash split into its 32 precision-6 cells, and the 3 by 3 grid of geohashes around the Brandenburg Gate](docs/images/geohash-grid.svg)
+
+The geohash functions GeohashPartition uses internally are yours to use too.
+Turn a latitude and longitude into a geohash, get its rectangle, and list the
+grid around it:
+
+```python
+from geohash_partition import bbox, encode, neighbors
+
+lat, lon = 52.5163, 13.3777            # Brandenburg Gate, Berlin
+cell = encode(lat, lon, precision=6)
+print(cell)
+print(bbox(cell))                      # (min_lat, min_lon, max_lat, max_lon)
+
+# the 3 x 3 grid around it
+n = neighbors(cell)                    # {'n': ..., 'e': ..., 's': ..., 'w': ...}
+grid = [
+    [neighbors(n["n"])["w"], n["n"], neighbors(n["n"])["e"]],
+    [n["w"],                 cell,   n["e"]],
+    [neighbors(n["s"])["w"], n["s"], neighbors(n["s"])["e"]],
+]
+for row in grid:
+    print(" ".join(row))
+
+# coarser or finer grids: just change the precision
+print([encode(lat, lon, precision=p) for p in (4, 5, 6, 7)])
+```
+
+```text
+u33db2
+(52.5146484375, 13.370361328125, 52.5201416015625, 13.38134765625)
+u33db1 u33db3 u33db9
+u33db0 u33db2 u33db8
+u33d8p u33d8r u33d8x
+['u33d', 'u33db', 'u33db2', 'u33db2m']
+```
+
+The bottom row starts with `u33d8`, not `u33db`. Those cells lie just south of
+the edge of `u33db`, which is why the prefix rule is "usually close", not
+"always the same prefix".
+
+To use your own points as input, count them per geohash. The counts become the
+weights:
+
+```python
+from collections import Counter
+
+from geohash_partition import encode, partition
+
+# your own data: one (lat, lon) per event, sighting, customer, ...
+points = [
+    (52.5163, 13.3777), (52.5170, 13.3790), (52.5155, 13.3760),
+    (52.5200, 13.4050), (52.5210, 13.4040), (52.5070, 13.3900),
+]
+weights = Counter(encode(lat, lon, precision=6) for lat, lon in points)
+print(weights)
+
+result = partition(weights, min_area_weight=2, max_area_weight=4)
+print([(area.id, area.weight) for area in result.areas])
+```
+
+```text
+Counter({'u33db2': 3, 'u33dc0': 1, 'u33dc1': 1, 'u33d8w': 1})
+[('u33db2', 3), ('u33dc0', 2)]
+```
+
+The same `weights` can be written out as a two-column CSV of geohash and weight
+for the command line tool.
+
 Learn more:
 
 - [Geohash on Wikipedia](https://en.wikipedia.org/wiki/Geohash) explains the
@@ -323,6 +394,13 @@ geohash-partition view -i areas.json|areas.geojson [-o map.html] [--title TEXT] 
 ```bash
 uv sync --extra dev
 uv run pytest
+```
+
+Regenerate the geohash diagram in `docs/images/` after changing the geohash
+code:
+
+```bash
+uv run python docs/make_geohash_figure.py
 ```
 
 ## License
