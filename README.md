@@ -370,24 +370,56 @@ Tuning tips:
 
 ## Command reference
 
-```text
-geohash-partition build -i data.csv --min-area-weight N --max-area-weight N [options]
-  -i, --input FILE           two-column CSV: geohash, weight (header optional)
-  -o, --output-dir DIR       where to write outputs (default: .)
-  --name NAME                base file name (default: areas)
-  --max-grids-per-area N     --precision N      --greediness N
-  --max-areas N              --max-failures N   --no-fill-holes
-  --seed-order {heaviest,lightest,random}       --random-seed N
-  --include-leftover         add leftover grids to the GeoJSON
-  --csv                      also write NAME-assignments.csv
-  --no-json  --no-map        skip those outputs
-  --title TEXT               map title
-  --tiles auto|osm|opentopomap|URL   base map (default auto)
-  --tiles-attribution HTML   required with a custom tile URL
+Run `geohash-partition <command> --help` to see the same options in the terminal.
 
-geohash-partition view -i areas.json|areas.geojson [-o map.html] [--title TEXT] [--no-leftover]
-                       [--tiles auto|osm|opentopomap|URL] [--tiles-attribution HTML]
+### `geohash-partition build`
+
+Forms areas from a CSV and writes the outputs.
+
+```bash
+geohash-partition build -i data.csv -o out/ --min-area-weight 3000 --max-area-weight 6000
 ```
+
+| Option | Default | What it does |
+|---|---|---|
+| `-i`, `--input FILE` | required | Two-column CSV: geohash, then weight. Header optional. |
+| `-o`, `--output-dir DIR` | `.` | Directory for the output files. |
+| `--name NAME` | `areas` | Base file name for the outputs. |
+| `--min-area-weight N` | required | Reject areas lighter than this. |
+| `--max-area-weight N` | required | Stop growing an area at this weight. |
+| `--max-grids-per-area N` | `100` | Cap on grids per area. |
+| `--precision N` | `6` | Geohash length to work at. |
+| `--greediness N` | `2` | Orphan-absorption passes. |
+| `--max-areas N` | no limit | Stop after this many areas. |
+| `--max-failures N` | `100` | Consecutive rejected seeds before stopping. |
+| `--no-fill-holes` | off | Leave gaps enclosed by areas unfilled. |
+| `--seed-order ORDER` | `heaviest` | `heaviest`, `lightest` or `random`. |
+| `--random-seed N` | none | Makes `--seed-order random` reproducible. |
+| `--include-leftover` | off | Add leftover grids to the GeoJSON. |
+| `--csv` | off | Also write `NAME-assignments.csv`. |
+| `--no-json` | off | Skip `NAME.json`. |
+| `--no-map` | off | Skip `NAME-map.html`. |
+| `--title TEXT` | `GeohashPartition map` | Title shown on the map. |
+| `--tiles TILES` | `auto` | Base map: `auto`, `osm`, `opentopomap` or a tile URL template. |
+| `--tiles-attribution HTML` | none | Attribution, required with a custom tile URL. |
+| `-q`, `--quiet` | off | Hide progress messages. |
+
+### `geohash-partition view`
+
+Renders the Leaflet map from a saved result or GeoJSON file.
+
+```bash
+geohash-partition view -i out/areas.json
+```
+
+| Option | Default | What it does |
+|---|---|---|
+| `-i`, `--input FILE` | required | A saved `NAME.json` or `NAME.geojson`. |
+| `-o`, `--output FILE` | `<input>-map.html` | HTML file to write. |
+| `--title TEXT` | `GeohashPartition map` | Title shown on the map. |
+| `--no-leftover` | off | Don't draw leftover grids. |
+| `--tiles TILES` | `auto` | Base map: `auto`, `osm`, `opentopomap` or a tile URL template. |
+| `--tiles-attribution HTML` | none | Attribution, required with a custom tile URL. |
 
 ## Development
 
