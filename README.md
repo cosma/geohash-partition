@@ -2,7 +2,7 @@
 
 **Constraint-based geographic partitioning with geohash grids.**
 
-![Interactive areas map for the Berlin sample at precision 6: 62 areas shaded by weight, with the outcome and parameters panel](docs/images/areas-map-precision-6.jpg)
+![Interactive areas map for the Berlin sample at precision 6: 62 areas shaded by weight, with the outcome and parameters panel](https://raw.githubusercontent.com/cosma/geohash-partition/main/docs/images/areas-map-precision-6.jpg)
 
 *The `areas-map.html` generated for the bundled Berlin sample: 62 areas shaded
 from light to dark by weight, with the run's outcome and parameters in the side
@@ -56,7 +56,7 @@ to that precision, and their weights are added up.
 
 ### From coordinates to a geohash grid
 
-![A precision-5 geohash split into its 32 precision-6 cells, and the 3 by 3 grid of geohashes around the Brandenburg Gate](docs/images/geohash-grid.svg)
+![A precision-5 geohash split into its 32 precision-6 cells, and the 3 by 3 grid of geohashes around the Brandenburg Gate](https://raw.githubusercontent.com/cosma/geohash-partition/main/docs/images/geohash-grid.svg)
 
 The geohash functions GeohashPartition uses internally are yours to use too.
 Turn a latitude and longitude into a geohash, get its rectangle, and list the
@@ -384,7 +384,7 @@ same Berlin sample and the same limits: `min_area_weight` 2000,
 
 | Precision 6 | Precision 5 |
 |---|---|
-| ![Berlin sample at precision 6: 62 areas with detailed, stepped edges](docs/images/areas-map-precision-6.jpg) | ![Berlin sample at precision 5: 36 blocky areas built from large cells](docs/images/areas-map-precision-5.jpg) |
+| ![Berlin sample at precision 6: 62 areas with detailed, stepped edges](https://raw.githubusercontent.com/cosma/geohash-partition/main/docs/images/areas-map-precision-6.jpg) | ![Berlin sample at precision 5: 36 blocky areas built from large cells](https://raw.githubusercontent.com/cosma/geohash-partition/main/docs/images/areas-map-precision-5.jpg) |
 
 | Berlin sample | Precision 6 | Precision 5 |
 |---|---|---|

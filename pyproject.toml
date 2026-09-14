@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "geohash-partition"
-version = "0.1.1"
+version = "0.1.2"
 description = "Constraint-based geographic partitioning: assemble geohash grids into connected, weight-balanced areas."
 readme = "README.md"
 license = { text = "MIT" }
