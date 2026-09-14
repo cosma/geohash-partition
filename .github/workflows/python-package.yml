@@ -24,12 +24,13 @@ jobs:
       with:
         python-version: "3.14"
         enable-cache: true
+    # --locked: use the exact versions in uv.lock and fail if it is out of date with pyproject.toml.
     - name: Lint with Ruff
-      run: uv run --only-group quality ruff check --output-format=github .
+      run: uv run --locked --only-group quality ruff check --output-format=github .
     - name: Check formatting with Ruff
-      run: uv run --only-group quality ruff format --check --diff .
+      run: uv run --locked --only-group quality ruff format --check --diff .
     - name: Type check with mypy
-      run: uv run --group quality mypy
+      run: uv run --locked --group quality mypy
 
   test:
     name: Tests on Python ${{ matrix.python-version }}
@@ -46,4 +47,4 @@ jobs:
         python-version: ${{ matrix.python-version }}
         enable-cache: true
     - name: Test with pytest
-      run: uv run --extra dev pytest
+      run: uv run --locked --extra dev pytest
