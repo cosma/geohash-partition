@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-uv-lock.sh",
+            "timeout": 60,
+            "statusMessage": "Checking uv.lock is committed with pyproject.toml"
+          }
+        ]
+      }
+    ]
+  }
+}
